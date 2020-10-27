@@ -1,17 +1,26 @@
+#' ---
+#' title: Trabalho final - Análises Espaciais - Prof. Maurício Vancine
+#' author: Gedimar Barbosa e Camila Vieira
+#' date: 2020-10-27
+#' ---
+
+#Loading required packages
+
 library(tidyverse)
+library(igraph)
 
 
 # download dataset
-dir.create("04_trabalho")
+dir.create("02_data")
 
 download.file(url = "https://esajournals.onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1002%2Fecy.1818&file=ecy1818-sup-0002-DataS1.zip",
-              destfile = here::here("04_trabalho", "atlantic_frugivory.zip"), mode = "wb")
+              destfile = here::here("02_data", "atlantic_frugivory.zip"), mode = "wb")
 
 # unzip
-unzip(zipfile = here::here("04_trabalho", "atlantic_frugivory.zip"),
-      exdir = here::here("04_trabalho"))
+unzip(zipfile = here::here("02_data", "atlantic_frugivory.zip"),
+      exdir = here::here("02_data"))
 
-setwd("D:/Ge/github/disciplina-analise-geoespacial-r/04_trabalho")
+setwd("D:/Ge/github/disciplina-mauricio_trabalho-final/02_data")
 
 dataset <- read.csv("ATLANTIC_frugivory.csv")
 
@@ -74,11 +83,6 @@ net_nodes <- lapply(net_nodes, dplyr::distinct)
 
 #Ploting networks
 
-library(igraph)
-library(network)
-library(ggraph)
-library(visNetwork)
-
 #creating an igraph object (example)
 
 net <- igraph::graph_from_data_frame(d=net_edges[[17]], vertices = net_nodes[[17]], directed = F)
@@ -98,4 +102,5 @@ V(net)$color = gsub("Frugivore_Species","gold",V(net)$color)
 V(net)$color = gsub("Plant_Species","green",V(net)$color)
 
 plot(net, vertex.label=NA, edge.width=1.5, layout = layout_with_kk)
+
 
