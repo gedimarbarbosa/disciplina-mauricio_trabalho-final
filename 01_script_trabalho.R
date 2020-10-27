@@ -105,6 +105,8 @@ V(net)$color = gsub("Plant_Species","green",V(net)$color)
 
 plot(net, vertex.label=NA, edge.width=1.5, layout = layout_with_kk)
 
+#measuring network metrics
+
 
 ### Spatial analysis
 # Atlantic forest raster data
@@ -119,13 +121,15 @@ ra
 
 # Atlantic forest (existe um código para a mata atlântica?)
 af <- geobr::read_biomes(year = 2019) %>% 
-  sf::st_transform(crs = 4326)
+  sf::st_transform(crs = 4326) %>% 
+  dplyr::filter(name_biome == "Mata Atlântica")
 
 af
 
+
+
 # plot
-raster::plot(af, col = viridis::viridis(10))
-plot(rc_2019$geom, col = adjustcolor("red", .5), add = TRUE)
+raster::plot(af$geom, col = "red")
 
 
 # environmental data from worldclim
@@ -133,11 +137,11 @@ plot(rc_2019$geom, col = adjustcolor("red", .5), add = TRUE)
 dir.create(here::here("02_data", "raster"))
 
 # download
-download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/base/wc2.1_10m_bio.zip",
-              destfile = here::here("02_data", "raster", "wc2.0_10m_bio.zip"), mode = "wb")
+download.file(url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/base/wc2.1_10m_elev.zip",
+              destfile = here::here("02_data", "raster", "wc2.1_10m_elev.zip"), mode = "wb")
 
 # unzip
-unzip(zipfile = here::here("02_data", "raster", "wc2.0_10m_bio.zip"),
+unzip(zipfile = here::here("02_data", "raster", "wc2.1_10m_elev.zip"),
       exdir = here::here("02_data", "raster"))
 
 # list files
@@ -146,9 +150,21 @@ fi <- dir(path = here::here("02_data", "raster"), pattern = "wc") %>%
 fi
 
 # import stack
-st <- raster::stack(here::here("02_data", "raster", fi))
-st
+elev <- raster::raster(here::here("02_data", "raster", "wc2.1_10m_elev.tif"))
+
 
 # map
 raster::plot(st[[1:2]], col = viridis::viridis(10))
 
+
+#raster::extract(elev, )
+
+d_lon_lat <- dataset %>% 
+  tidyr::drop_na(Longitude:Latitude) %>% 
+  dplyr::select(Longitude:Latitude)
+  
+d_lon_lat
+  
+data_ele <- d_lon_lat %>% 
+  dplyr::mutate(elev = raster::extract(elev, .))
+data_ele
